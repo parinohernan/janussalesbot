@@ -8,8 +8,7 @@ let cart = [];
 let html5QrcodeScanner;
 let lastProcessedCode = null; // Para debouncing
 let lastProcessedTime = 0;    // Para debouncing
-const SCAN_DEBOUNCE_MS = 1500; // Milisegundos de espera para el mismo código (1.5 seg)
-
+const SCAN_DEBOUNCE_MS = 5000; // Milisegundos de espera para el estaneo 5 segundos
 // Referencias a elementos del DOM
 const qrResultDiv = document.getElementById('qr-result');
 const readerDiv = document.getElementById('reader');

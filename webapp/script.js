@@ -29,7 +29,8 @@ const finalizeButton = document.getElementById('finalize-button');
 function playSound() {
     const beepElement = document.getElementById('scan-beep');
     if (beepElement) {
-        // Rebobina por si acaso y reproduce
+        // Asegura volumen máximo y rebobina
+        beepElement.volume = 1.0; // Establece volumen al máximo (rango 0.0 a 1.0)
         beepElement.currentTime = 0;
         beepElement.play().catch(error => {
             // El navegador podría bloquear la reproducción si no hubo interacción previa
@@ -44,7 +45,7 @@ function playSound() {
 
 function vibrateDevice() {
     if ('vibrate' in navigator) {
-        navigator.vibrate(100); // Vibra por 100ms
+        navigator.vibrate(1000); // Vibra por 100ms
     }
 }
 

@@ -21,12 +21,38 @@
 
         <!-- Contenedor donde se renderizará el escáner -->
         <div id="reader"></div>
+        <button id="restart-scan-button" style="display: none; margin-top: 10px;">🔍 Escanear Siguiente</button>
 
-        <!-- Eliminamos el botón anterior, el escáner se iniciará automáticamente o con un botón JS si es necesario -->
-        <!-- <button id="scan-qr-button">📱 Escanear QR</button> -->
+        <!-- Sección para pedir cantidad (oculta inicialmente) -->
+        <div id="quantity-prompt" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+            <p><strong>Código:</strong> <span id="scanned-code"></span></p>
+            <label for="quantity-input">Cantidad:</label>
+            <input type="number" id="quantity-input" value="1" min="1" style="width: 60px; margin: 0 10px;">
+            <button id="confirm-quantity">Añadir</button>
+            <button id="cancel-quantity" style="margin-left: 5px;">Cancelar</button>
+        </div>
+
+        <div id="qr-result">Esperando escaneo...</div>
     </div>
 
-    <div id="qr-result">Esperando escaneo...</div>
+    <!-- Lista de Items -->
+    <div class="item-list-container">
+        <h2>Lista de Compra</h2>
+        <ul id="item-list"></ul>
+    </div>
+
+    <!-- Entrada Manual -->
+    <div class="manual-entry-container">
+        <h2>Entrada Manual</h2>
+        <input type="text" id="manual-barcode" placeholder="Código de barras">
+        <input type="number" id="manual-quantity" placeholder="Cantidad" value="1" min="1" style="width: 80px;">
+        <button id="manual-add-button">+</button>
+    </div>
+
+    <!-- Botón Finalizar (preparado) -->
+    <div style="text-align: center; margin-top: 25px;">
+        <button id="finalize-button">✅ Finalizar Venta</button>
+    </div>
 
     <script src="script.js"></script>
 </body>

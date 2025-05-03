@@ -27,21 +27,18 @@ const finalizeButton = document.getElementById('finalize-button');
 // --- Funciones Auxiliares ---
 
 function playSound() {
-    // Simple beep - necesita permiso del usuario en algunos navegadores
-    try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        oscillator.type = 'sine'; // 'sine', 'square', 'sawtooth', 'triangle'
-        oscillator.frequency.setValueAtTime(440, audioContext.currentTime); // A4 note
-        const gainNode = audioContext.createGain();
-        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.15);
-    } catch (e) {
-        console.warn("No se pudo reproducir el sonido:", e);
+    const beepElement = document.getElementById('scan-beep');
+    if (beepElement) {
+        // Rebobina por si acaso y reproduce
+        beepElement.currentTime = 0;
+        beepElement.play().catch(error => {
+            // El navegador podría bloquear la reproducción si no hubo interacción previa
+            console.warn("Fallo al reproducir sonido (puede requerir interacción del usuario):");
+            // Podríamos intentar desbloquearlo en la primera interacción, pero
+            // para el escaneo es más difícil asegurar eso.
+        });
+    } else {
+        console.warn("Elemento de audio #scan-beep no encontrado.");
     }
 }
 

@@ -6,6 +6,9 @@ tg.expand(); // Expande la Web App al máximo
 // Estado de la aplicación
 let cart = [];
 let html5QrcodeScanner;
+let lastProcessedCode = null; // Para debouncing
+let lastProcessedTime = 0;    // Para debouncing
+const SCAN_DEBOUNCE_MS = 1500; // Milisegundos de espera para el mismo código (1.5 seg)
 
 // Referencias a elementos del DOM
 const qrResultDiv = document.getElementById('qr-result');
@@ -145,7 +148,23 @@ function removeItem(index) {
 
 // --- Lógica del Escáner --- 
 const onScanSuccess = (decodedText, decodedResult) => {
-    console.log(`Código detectado: ${decodedText}`);
+    const currentTime = Date.now();
+
+    // Lógica de Debouncing:
+    // Ignora si es el mismo código y no ha pasado suficiente tiempo
+    if (decodedText === lastProcessedCode && (currentTime - lastProcessedTime < SCAN_DEBOUNCE_MS)) {
+        // console.log("Debounced same code:", decodedText); // Para depuración
+        return; // Ignorar este escaneo repetido
+    }
+
+    // Si es un código nuevo o ha pasado el tiempo, procesarlo
+    console.log(`Código detectado y procesado: ${decodedText}`);
+    
+    // Actualizar estado para debouncing ANTES de operaciones
+    lastProcessedCode = decodedText;
+    lastProcessedTime = currentTime;
+    
+    // Realizar acciones
     playSound();
     vibrateDevice();
     addItemOrIncrement(decodedText);

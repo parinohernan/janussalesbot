@@ -227,7 +227,9 @@ manualAddButton.addEventListener('click', () => {
 });
 
 finalizeButton.addEventListener('click', () => {
+    console.log('Botón Finalizar Venta (HTML) presionado. Carrito:', cart); // LOG
     if (cart.length > 0) {
+        console.log('Enviando datos vía tg.sendData...'); // LOG
         tg.sendData(JSON.stringify(cart));
     } else {
         alert('La lista está vacía.');
@@ -236,7 +238,9 @@ finalizeButton.addEventListener('click', () => {
 
 // Listener para el botón principal de Telegram
 tg.MainButton.onClick(() => {
+    console.log('Botón Principal de Telegram presionado. Carrito:', cart); // LOG
      if (cart.length > 0) {
+        console.log('Enviando datos vía tg.sendData (MainButton)...'); // LOG
         tg.sendData(JSON.stringify(cart));
     } 
 });

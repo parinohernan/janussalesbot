@@ -12,7 +12,7 @@ const bot = new TelegramBot(token, { polling: true });
 // IMPORTANTE: Telegram requiere que la URL sea HTTPS.
 // Para desarrollo local, usaremos una herramienta como ngrok.
 // Por ahora, pondremos un placeholder. Necesitarás actualizar esto.
-const webAppUrl = 'https://example.com'; // <- ¡Necesitarás reemplazar esto!
+const webAppUrl = 'https://4db1cec7-c666-445c-bf54-1998b05ccd0d.netlify.app/index.html'; // <- Actualizado con la URL de Netlify
 
 // Escucha el comando /start
 bot.onText(/\/start/, (msg) => {

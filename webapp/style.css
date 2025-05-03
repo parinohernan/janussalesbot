@@ -65,6 +65,29 @@ button#scan-qr-button:active {
     transform: translateY(1px);
 }
 
+/* Estilos para el visor del escáner */
+#reader {
+    width: 100%;
+    max-width: 500px; /* O ajusta según prefieras */
+    border: 2px solid var(--tg-theme-hint-color, #e0e0e0);
+    border-radius: 8px;
+    margin: 20px auto; /* Centrado y con margen */
+    background-color: #000; /* Fondo oscuro para el visor */
+    position: relative; /* Para posibles elementos superpuestos */
+}
+
+/* Estilos para el video dentro del lector */
+#reader video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px; /* Ligeramente menos que el contenedor */
+}
+
+/* Puedes añadir estilos para botones de start/stop si los implementas */
+
+/* --- Fin estilos escáner --- */
+
 /* Área de resultados */
 #qr-result {
     margin-top: 30px;

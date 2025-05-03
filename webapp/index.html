@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Escáner QR Venta</title>
+    <title>Escáner Código de Barras Venta</title>
     <!-- Incluye el script oficial de Telegram Web Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Incluye la librería html5-qrcode -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <!-- Enlaza la hoja de estilos CSS -->
     <link rel="stylesheet" href="style.css">
     <style>
@@ -14,10 +16,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>Simulador de Venta QR</h1>
-        <p>Haz clic en el botón para escanear un código QR de un producto.</p>
+        <h1>Registrar Venta</h1>
+        <p>Apunta la cámara al código de barras del producto.</p>
 
-        <button id="scan-qr-button">📱 Escanear QR</button>
+        <!-- Contenedor donde se renderizará el escáner -->
+        <div id="reader"></div>
+
+        <!-- Eliminamos el botón anterior, el escáner se iniciará automáticamente o con un botón JS si es necesario -->
+        <!-- <button id="scan-qr-button">📱 Escanear QR</button> -->
     </div>
 
     <div id="qr-result">Esperando escaneo...</div>

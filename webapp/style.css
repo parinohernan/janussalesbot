@@ -1,0 +1,83 @@
+/* Estilos generales */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: var(--tg-theme-text-color, #212121); /* Color de texto principal con fallback */
+    background-color: var(--tg-theme-bg-color, #ffffff); /* Color de fondo con fallback */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Asegura que el body ocupe al menos toda la altura */
+    box-sizing: border-box;
+}
+
+/* Contenedor principal */
+.container {
+    width: 100%;
+    max-width: 600px; /* Ancho máximo para el contenido */
+    text-align: center;
+    background-color: var(--tg-theme-secondary-bg-color, #f8f8f8); /* Un fondo secundario sutil */
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px; /* Espacio antes del resultado */
+}
+
+h1 {
+    color: var(--tg-theme-text-color, #007bff);
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+p {
+    line-height: 1.6;
+    margin-bottom: 25px;
+    font-size: 1.1em;
+}
+
+/* Estilo del botón */
+button#scan-qr-button {
+    display: inline-block;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: var(--tg-theme-button-text-color, #ffffff); /* Color texto botón con fallback */
+    background-color: var(--tg-theme-button-color, #007bff); /* Color fondo botón con fallback */
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button#scan-qr-button:hover {
+    background-color: #0056b3; /* Un color un poco más oscuro al pasar el mouse (ajusta si usas variable) */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+button#scan-qr-button:active {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(1px);
+}
+
+/* Área de resultados */
+#qr-result {
+    margin-top: 30px;
+    padding: 15px;
+    background-color: var(--tg-theme-bg-color, #ffffff);
+    border: 1px solid var(--tg-theme-hint-color, #e0e0e0); /* Borde sutil */
+    border-radius: 8px;
+    min-height: 50px; /* Altura mínima para que sea visible */
+    word-wrap: break-word;
+    text-align: left;
+    line-height: 1.5;
+    font-size: 1em;
+    color: var(--tg-theme-text-color, #333);
+    width: 100%; /* Ocupa el ancho disponible */
+    box-sizing: border-box;
+} 

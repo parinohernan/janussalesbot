@@ -4,7 +4,7 @@ tg.ready();
 tg.expand(); // Expande la Web App al máximo
 
 // Estado de la aplicación
-let cart = [];
+let cart = []; // Limpiar carrito al cargar la Web App
 let html5QrcodeScanner;
 let lastProcessedCode = null; // Para debouncing
 let lastProcessedTime = 0;    // Para debouncing
@@ -253,9 +253,9 @@ if (readerDiv && qrResultDiv && itemListUl) {
         initializeScanner();
     } catch (error) {
         console.error("Error inicializando el escáner:", error);
-        qrResultDiv.textContent = "Error al iniciar el escáner. Asegúrate de dar permiso a la cámara.";
+        qrResultDiv.textContent = "Error al iniciar escáner.";
     }
-    renderCart(); // Renderiza la lista inicial (vacía)
+    renderCart(); // Llamar a renderCart DESPUÉS de inicializar para mostrar la lista vacía
 } else {
     console.error("Error: Faltan elementos esenciales del DOM.");
     if(qrResultDiv) qrResultDiv.textContent = "Error crítico: Faltan elementos HTML.";

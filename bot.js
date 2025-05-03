@@ -40,63 +40,68 @@ console.log('Bot iniciado...');
 
 // Manejo básico de errores de polling
 bot.on('polling_error', (error) => {
-  console.error('Error de polling:', error.code); // p. ej. 'EFATAL'
-  // Puedes agregar lógica de reintento o notificación aquí si es necesario
+  console.error('[POLLING ERROR]', error.code, error.message || error); // Log más detallado
 });
 
-// Escucha cualquier mensaje de texto (opcional, para depuración)
+// --- Listener para mensajes de texto normales ---
 bot.on('message', (msg) => {
-  // Ignorar si contiene web_app_data, ya que se manejará en otro listener
-  if (msg.web_app_data) return;
+  // Ignorar si tiene web_app_data (se maneja en otro listener)
+  // O si es el comando /start (ya manejado)
+  if (msg.web_app_data || (msg.text && msg.text.startsWith('/start'))) {
+    return;
+  }
 
+  // Log del objeto msg COMPLETO para mensajes de texto
+  console.log("[BOT MSG]:", JSON.stringify(msg, null, 2)); 
   const chatId = msg.chat.id;
-  // Solo responde si no es el comando /start para evitar doble respuesta
-  if (msg.text && !msg.text.startsWith('/start')) {
-    console.log(`Mensaje recibido de ${chatId}: ${msg.text}`);
-    // bot.sendMessage(chatId, 'Recibí tu mensaje: ' + msg.text);
+
+  if (msg.text) {
+     console.log(`[BOT MSG LOG] Mensaje de texto recibido de ${chatId}: ${msg.text}`);
+     // bot.sendMessage(chatId, 'Texto recibido: ' + msg.text); // Respuesta opcional
   }
 });
 
-// --- NUEVO LISTENER: Manejar datos recibidos de la Web App ---
-bot.on('message', (msg) => {
-  // Verificar si el mensaje contiene datos de la Web App
-  if (msg.web_app_data) {
-    const chatId = msg.chat.id;
-    const dataString = msg.web_app_data.data;
-    console.log(`Datos recibidos de la Web App para chat ${chatId}:`, dataString);
+// --- Listener DEDICADO para Web App Data ---
+bot.on('web_app_data', (query) => {
+  console.log("\n--- [BOT WEB_APP_DATA RECEIVED] ---");
+  console.log(JSON.stringify(query, null, 2)); // Log del objeto query completo
+  console.log("--- [END BOT WEB_APP_DATA] ---\n");
 
-    try {
-      // Parsear el JSON string de vuelta a un objeto/array JavaScript
-      const cartData = JSON.parse(dataString);
+  const chatId = query.from.id; // El ID del usuario que envió los datos
+  const dataString = query.data;
+  console.log(`[BOT WAD LOG] Datos recibidos (raw string) para chat ${chatId}:`, dataString); // LOG 2
 
-      // --- Aquí procesas los datos del carrito --- 
-      // Por ejemplo, calcular el total de items o el precio si tuvieras precios
-      let totalItems = 0;
-      let messageText = "Venta registrada:\n";
-      
-      if (Array.isArray(cartData)) {
-          cartData.forEach(item => {
-              totalItems += item.quantity;
-              // Formatear cada item para el mensaje
-              messageText += `- Código: ${item.barcode}, Cantidad: ${item.quantity}\n`; 
-          });
-          messageText += `\nTotal de productos: ${totalItems}`;
-      } else {
-          messageText = "Se recibieron datos, pero el formato no es el esperado (no es un array).";
-          console.error("Error: los datos recibidos no son un array:", cartData);
-      }
-      
-      // Puedes añadir lógica para guardar en DB, etc.
-      // --------------------------------------------
+  try {
+    console.log("[BOT WAD LOG] Intentando parsear JSON..."); // LOG 3
+    const cartData = JSON.parse(dataString);
+    console.log("[BOT WAD LOG] JSON parseado exitosamente:", cartData); // LOG 4
 
-      // Enviar confirmación al usuario en Telegram
-      bot.sendMessage(chatId, messageText);
-
-    } catch (error) {
-        console.error("Error al parsear o procesar datos de la Web App:", error);
-        bot.sendMessage(chatId, "Hubo un error al procesar tu lista de compra. Por favor, inténtalo de nuevo.");
+    let totalItems = 0;
+    let messageText = "Venta registrada:\n"; 
+    
+    if (Array.isArray(cartData)) {
+        console.log("[BOT WAD LOG] Procesando array del carrito..."); // LOG 5
+        cartData.forEach(item => {
+            const quantity = Number(item.quantity) || 0;
+            totalItems += quantity;
+            messageText += `- Código: ${item.barcode}, Cantidad: ${item.quantity}\n`; 
+        });
+        messageText += `\nTotal de productos: ${totalItems}`;
+        console.log("[BOT WAD LOG] Mensaje de confirmación preparado:", messageText); // LOG 6
+    } else {
+        messageText = "Datos recibidos, pero formato incorrecto.";
+        console.error("[BOT WAD ERROR] Los datos recibidos no son un array:", cartData);
     }
+
+    console.log("[BOT WAD LOG] Enviando mensaje de confirmación al chat..."); // LOG 7
+    // ¡Importante! Usamos el chatId obtenido de query.from.id
+    bot.sendMessage(chatId, messageText);
+    console.log("[BOT WAD LOG] Mensaje de confirmación enviado."); // LOG 8
+
+  } catch (error) {
+      console.error("[BOT WAD ERROR] Error al parsear o procesar datos de la Web App:", error); // LOG ERROR
+      bot.sendMessage(chatId, "Hubo un error al procesar tu lista de compra.");
   }
 });
 
-console.log('Bot (re)iniciado con listener para Web App Data...'); 
+console.log('Bot (re)iniciado con listener \'web_app_data\' y \'message\'...'); 

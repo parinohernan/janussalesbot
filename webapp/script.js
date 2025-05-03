@@ -204,22 +204,7 @@ function initializeScanner() {
     qrResultDiv.textContent = 'Escáner inicializado. Apunta al código.';
 }
 
-function formatCartForChat() {
-    if (cart.length === 0) {
-        return "El carrito está vacío.";
-    }
-    let messageText = "Resumen de Venta:\n";
-    let totalItems = 0;
-    cart.forEach(item => {
-        const quantity = Number(item.quantity) || 0;
-        totalItems += quantity;
-        messageText += `- ${item.barcode} (x${item.quantity})\n`; 
-    });
-    messageText += `\nTotal productos: ${totalItems}`;
-    return messageText;
-}
-
-// --- Event Listeners --- 
+// --- Event Listeners (Entrada Manual y Finalizar) --- 
 
 manualAddButton.addEventListener('click', () => {
     const barcode = manualBarcodeInput.value.trim();
@@ -242,24 +227,32 @@ manualAddButton.addEventListener('click', () => {
 });
 
 finalizeButton.addEventListener('click', () => {
-    console.log('Botón Finalizar Venta (HTML) presionado.');
+    console.log('Botón Finalizar Venta (HTML) presionado. Carrito:', cart);
     if (cart.length > 0) {
-        const cartSummary = formatCartForChat();
-        console.log('Preparando para switchInlineQuery con:', cartSummary);
-        // Cierra la Web App y pone el resumen en el campo de texto del chat
-        // El segundo parámetro [] significa que permite seleccionar cualquier chat (o el actual)
-        tg.switchInlineQuery(cartSummary, []); 
+        // const cartSummary = formatCartForChat();
+        // console.log('Preparando para switchInlineQuery con:', cartSummary);
+        // tg.switchInlineQuery(cartSummary, []); 
+        
+        // *** VOLVEMOS A USAR sendData para el webhook ***
+        console.log('Enviando datos vía tg.sendData para webhook...'); 
+        tg.sendData(JSON.stringify(cart));
+        // ***********************************************
     } else {
         alert('La lista está vacía.');
     }
 });
 
 tg.MainButton.onClick(() => {
-     console.log('Botón Principal de Telegram presionado.');
+     console.log('Botón Principal de Telegram presionado. Carrito:', cart);
      if (cart.length > 0) {
-        const cartSummary = formatCartForChat();
-        console.log('Preparando para switchInlineQuery (MainButton) con:', cartSummary);
-        tg.switchInlineQuery(cartSummary, []);
+        // const cartSummary = formatCartForChat();
+        // console.log('Preparando para switchInlineQuery (MainButton) con:', cartSummary);
+        // tg.switchInlineQuery(cartSummary, []);
+
+        // *** VOLVEMOS A USAR sendData para el webhook ***
+        console.log('Enviando datos vía tg.sendData (MainButton) para webhook...'); 
+        tg.sendData(JSON.stringify(cart));
+        // ***********************************************
     } 
 });
 

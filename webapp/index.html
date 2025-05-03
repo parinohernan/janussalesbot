@@ -17,21 +17,21 @@
 <body>
     <div class="container">
         <h1>Registrar Venta</h1>
-        <span id="version">v1.0.1</span>
+        <span id="version">v1.0.2</span>
         <p>Apunta la cámara al código de barras del producto.</p>
 
         <!-- Contenedor donde se renderizará el escáner -->
         <div id="reader"></div>
-        <button id="restart-scan-button" style="display: none; margin-top: 10px;">🔍 Escanear Siguiente</button>
+        <!-- <button id="restart-scan-button" style="display: none; margin-top: 10px;">🔍 Escanear Siguiente</button> -->
 
         <!-- Sección para pedir cantidad (oculta inicialmente) -->
-        <div id="quantity-prompt" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
+        <!-- <div id="quantity-prompt" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ccc; border-radius: 5px;">
             <p><strong>Código:</strong> <span id="scanned-code"></span></p>
             <label for="quantity-input">Cantidad:</label>
             <input type="number" id="quantity-input" value="1" min="1" style="width: 60px; margin: 0 10px;">
             <button id="confirm-quantity">Añadir</button>
             <button id="cancel-quantity" style="margin-left: 5px;">Cancelar</button>
-        </div>
+        </div> -->
 
         <div id="qr-result">Esperando escaneo...</div>
     </div>

@@ -6,19 +6,11 @@ tg.expand(); // Expande la Web App al máximo
 // Estado de la aplicación
 let cart = [];
 let html5QrcodeScanner;
-let isScannerPaused = false;
-let lastScannedCode = null;
 
 // Referencias a elementos del DOM
 const qrResultDiv = document.getElementById('qr-result');
 const readerDiv = document.getElementById('reader');
 const itemListUl = document.getElementById('item-list');
-const quantityPromptDiv = document.getElementById('quantity-prompt');
-const scannedCodeSpan = document.getElementById('scanned-code');
-const quantityInput = document.getElementById('quantity-input');
-const confirmQuantityButton = document.getElementById('confirm-quantity');
-const cancelQuantityButton = document.getElementById('cancel-quantity');
-const restartScanButton = document.getElementById('restart-scan-button');
 const manualBarcodeInput = document.getElementById('manual-barcode');
 const manualQuantityInput = document.getElementById('manual-quantity');
 const manualAddButton = document.getElementById('manual-add-button');
@@ -50,7 +42,7 @@ function vibrateDevice() {
 }
 
 function renderCart() {
-    itemListUl.innerHTML = ''; // Limpia la lista actual
+    itemListUl.innerHTML = '';
     if (cart.length === 0) {
         itemListUl.innerHTML = '<li>Lista vacía</li>';
         tg.MainButton.hide();
@@ -61,71 +53,102 @@ function renderCart() {
         li.innerHTML = `
             <div class="item-details">
                 <span class="barcode">${item.barcode}</span>
-                <span class="quantity">Cantidad: ${item.quantity}</span>
+            </div>
+            <div class="item-quantity-controls">
+                <button class="quantity-change-button" data-index="${index}" data-action="decrement">-</button>
+                <input type="number" class="quantity-input" data-index="${index}" value="${item.quantity}" min="0.01" step="any"> 
+                <button class="quantity-change-button" data-index="${index}" data-action="increment">+</button>
             </div>
             <button class="remove-item-button" data-index="${index}">X</button>
         `;
-        li.querySelector('.remove-item-button').addEventListener('click', () => {
-            removeItem(index);
+        
+        li.querySelectorAll('.quantity-change-button').forEach(button => {
+            button.addEventListener('click', handleQuantityChangeButtonClick);
         });
+        li.querySelector('.quantity-input').addEventListener('change', handleQuantityInputChange);
+        li.querySelector('.quantity-input').addEventListener('blur', handleQuantityInputChange);
+        li.querySelector('.remove-item-button').addEventListener('click', handleRemoveItemClick);
+        
         itemListUl.appendChild(li);
     });
 
-    // Actualizar y mostrar botón principal de Telegram para finalizar
     tg.MainButton.setText(`Finalizar Venta (${cart.length} items)`);
     tg.MainButton.show();
 }
 
-function addItemToCart(barcode, quantity) {
-    // Opcional: Buscar si el item ya existe y sumar cantidad?
-    // Por ahora, simplemente añade
-    cart.push({ barcode, quantity });
+function handleQuantityChangeButtonClick(event) {
+    const index = parseInt(event.target.dataset.index, 10);
+    const action = event.target.dataset.action;
+    if (action === 'increment') {
+        incrementQuantity(index);
+    } else if (action === 'decrement') {
+        decrementQuantity(index);
+    }
+}
+
+function handleQuantityInputChange(event) {
+    const index = parseInt(event.target.dataset.index, 10);
+    const newQuantity = parseFloat(event.target.value);
+    updateQuantity(index, newQuantity);
+}
+
+function handleRemoveItemClick(event) {
+    const index = parseInt(event.target.dataset.index, 10);
+    removeItem(index);
+}
+
+function addItemOrIncrement(barcode) {
+    const existingItemIndex = cart.findIndex(item => item.barcode === barcode);
+    if (existingItemIndex > -1) {
+        cart[existingItemIndex].quantity += 1;
+        qrResultDiv.textContent = `+1 ${barcode} (Total: ${cart[existingItemIndex].quantity})`;
+    } else {
+        cart.push({ barcode, quantity: 1 });
+        qrResultDiv.textContent = `Añadido: ${barcode} (x1)`;
+    }
     renderCart();
+}
+
+function incrementQuantity(index) {
+    if (cart[index]) {
+        cart[index].quantity += 1;
+        renderCart();
+    }
+}
+
+function decrementQuantity(index) {
+    if (cart[index]) {
+        cart[index].quantity -= 1;
+        if (cart[index].quantity <= 0) {
+            removeItem(index);
+        } else {
+            renderCart();
+        }
+    }
+}
+
+function updateQuantity(index, newQuantity) {
+    if (cart[index] && !isNaN(newQuantity) && newQuantity > 0) {
+        cart[index].quantity = newQuantity;
+    } else if (cart[index] && (!isNaN(newQuantity) && newQuantity <= 0)) {
+        removeItem(index);
+    } else {
+        renderCart();
+    }
 }
 
 function removeItem(index) {
     cart.splice(index, 1);
     renderCart();
-}
-
-function showQuantityPrompt(code) {
-    lastScannedCode = code;
-    scannedCodeSpan.textContent = code;
-    quantityInput.value = 1; // Resetea a 1
-    quantityPromptDiv.style.display = 'block';
-    qrResultDiv.textContent = `Código ${code} detectado. Introduce cantidad.`;
-    quantityInput.focus();
-    restartScanButton.style.display = 'block'; // Mostrar botón para re-escanear
-}
-
-function hideQuantityPrompt() {
-    quantityPromptDiv.style.display = 'none';
-    lastScannedCode = null;
-}
-
-function restartScanner() {
-    if (html5QrcodeScanner && isScannerPaused) {
-        html5QrcodeScanner.resume();
-        isScannerPaused = false;
-        qrResultDiv.textContent = 'Escáner reactivado.';
-        restartScanButton.style.display = 'none'; // Ocultar botón
-        hideQuantityPrompt(); // Ocultar prompt si estaba visible
-    }
+    qrResultDiv.textContent = 'Item eliminado.';
 }
 
 // --- Lógica del Escáner --- 
 const onScanSuccess = (decodedText, decodedResult) => {
-    if (isScannerPaused) return; // Ignorar si ya estamos pausados esperando cantidad
-
-    console.log(`Código detectado: ${decodedText}`, decodedResult);
+    console.log(`Código detectado: ${decodedText}`);
     playSound();
     vibrateDevice();
-
-    // Pausar el escáner para pedir cantidad
-    html5QrcodeScanner.pause(true); // El 'true' limpia el viewfinder
-    isScannerPaused = true;
-
-    showQuantityPrompt(decodedText);
+    addItemOrIncrement(decodedText);
 }
 
 const onScanFailure = (error) => {
@@ -161,53 +184,33 @@ function initializeScanner() {
 
     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     qrResultDiv.textContent = 'Escáner inicializado. Apunta al código.';
-    isScannerPaused = false;
 }
 
 // --- Event Listeners --- 
 
-confirmQuantityButton.addEventListener('click', () => {
-    const quantity = parseInt(quantityInput.value, 10);
-    if (lastScannedCode && quantity > 0) {
-        addItemToCart(lastScannedCode, quantity);
-        hideQuantityPrompt();
-        // Decidimos si reiniciar automáticamente o esperar al botón
-        // restartScanner(); // Opcional: reiniciar automáticamente
-        qrResultDiv.textContent = `Añadido: ${lastScannedCode} (x${quantity}). Escanea el siguiente.`;
-    } else {
-        alert('Cantidad inválida.');
-    }
-});
-
-cancelQuantityButton.addEventListener('click', () => {
-    hideQuantityPrompt();
-    restartScanner(); // Si cancela, reinicia el escáner
-    qrResultDiv.textContent = 'Escaneo cancelado. Escanea el siguiente.';
-});
-
-restartScanButton.addEventListener('click', () => {
-    restartScanner();
-});
-
 manualAddButton.addEventListener('click', () => {
     const barcode = manualBarcodeInput.value.trim();
-    const quantity = parseInt(manualQuantityInput.value, 10);
+    const quantity = parseFloat(manualQuantityInput.value);
 
-    if (barcode && quantity > 0) {
-        addItemToCart(barcode, quantity);
-        manualBarcodeInput.value = ''; // Limpiar campos
+    if (barcode && !isNaN(quantity) && quantity > 0) {
+        const existingItemIndex = cart.findIndex(item => item.barcode === barcode);
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].quantity += quantity;
+        } else {
+            cart.push({ barcode, quantity });
+        }
+        renderCart();
+        manualBarcodeInput.value = '';
         manualQuantityInput.value = '1';
+        qrResultDiv.textContent = `Añadido manualmente: ${barcode} (x${quantity})`;
     } else {
-        alert('Por favor, introduce un código y cantidad válidos.');
+        alert('Entrada manual inválida.');
     }
 });
 
 finalizeButton.addEventListener('click', () => {
     if (cart.length > 0) {
-        // Enviar datos al bot
         tg.sendData(JSON.stringify(cart));
-        // Opcionalmente cerrar la webapp después
-        // tg.close(); 
     } else {
         alert('La lista está vacía.');
     }
@@ -223,7 +226,7 @@ tg.MainButton.onClick(() => {
 // --- Inicialización --- 
 
 // Verifica si los elementos necesarios existen antes de inicializar
-if (readerDiv && qrResultDiv && itemListUl && quantityPromptDiv) {
+if (readerDiv && qrResultDiv && itemListUl) {
     try {
         initializeScanner();
     } catch (error) {
